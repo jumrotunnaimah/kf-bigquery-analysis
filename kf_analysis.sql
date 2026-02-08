@@ -1,3 +1,4 @@
+CREATE OR REPLACE TABLE eternal-poetry-486413-h6.kimia_farma.tabel_analisa AS
 SELECT
   ft.transaction_id,
   ft.date,
@@ -7,30 +8,34 @@ SELECT
   kc.provinsi,
   kc.rating AS rating_cabang,
   ft.customer_name,
-  ft.product_id,
+  p.product_id,
   p.product_name,
-  ft.price AS actual_price,
+  p.price AS actual_price,
   ft.discount_percentage,
 
+  -- Persentase Gross Laba
   CASE
-    WHEN ft.price <= 50000 THEN 0.10
-    WHEN ft.price > 50000 AND ft.price <= 100000 THEN 0.15
-    WHEN ft.price > 100000 AND ft.price <= 300000 THEN 0.20
-    WHEN ft.price > 300000 AND ft.price <= 500000 THEN 0.25
+    WHEN p.price <= 50000 THEN 0.10
+    WHEN p.price > 50000 AND p.price <= 100000 THEN 0.15
+    WHEN p.price > 100000 AND p.price <= 300000 THEN 0.20
+    WHEN p.price > 300000 AND p.price <= 500000 THEN 0.25
     ELSE 0.30
   END AS persentase_gross_laba,
 
-  --Nett Sales:Harga Setelah Diskon(p.price * (1-t.discount_percentage/100.00)) AS nett_sales, 
---Nett Profit(p.price * (1-t.discount_percentage/100.0)) *
+  -- Nett Sales
+  (p.price * (1 - ft.discount_percentage / 100)) AS nett_sales,
+
+  -- Nett Profit
+  (p.price * (1 - ft.discount_percentage / 100)) *
   CASE
-    WHEN ft.price <= 50000 THEN 0.10
-    WHEN ft.price > 50000 AND ft.price <= 100000 THEN 0.15
-    WHEN ft.price > 100000 AND ft.price <= 300000 THEN 0.20
-    WHEN ft.price > 300000 AND ft.price <= 500000 THEN 0.25
+    WHEN p.price <= 50000 THEN 0.10
+    WHEN p.price > 50000 AND p.price <= 100000 THEN 0.15
+    WHEN p.price > 100000 AND p.price <= 300000 THEN 0.20
+    WHEN p.price > 300000 AND p.price <= 500000 THEN 0.25
     ELSE 0.30
   END AS nett_profit,
 
- ft AS rating_transaksi,
+  ft.rating AS rating_transaksi
 
 FROM eternal-poetry-486413-h6.kimia_farma.kf_final_transaction ft
 LEFT JOIN eternal-poetry-486413-h6.kimia_farma.kf_kantor_cabang kc
